@@ -29,7 +29,7 @@ requestty = "0.6.3"
 reqwest = { version = "0.13", default-features = false, features = [ # https://docs.rs/crate/reqwest/latest/features
     "charset",      # default
     "http2",        # default
-    "system-proxy", # default
+    # "system-proxy", # panics on Termux (rustls-platform-verifier needs Android JNI init)
     "cookies",
     "query",
     "socks",

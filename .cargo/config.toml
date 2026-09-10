@@ -1,0 +1,16 @@
+[profile.dev]
+debug = true
+debug-assertions = true
+panic = "abort"
+incremental = true
+
+[profile.release]
+overflow-checks = false
+codegen-units = 1
+lto = "thin"
+opt-level = 2
+strip = true
+debug = 0
+debug-assertions = false
+incremental = false
+panic = "abort"
