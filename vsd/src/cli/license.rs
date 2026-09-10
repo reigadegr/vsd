@@ -135,8 +135,8 @@ impl License {
                         .map_err(|e| Error::Other(e.to_string()))?;
                     let device = playready::Device::from_prd(device_path)?;
                     let cdm = playready::Cdm::from_device(device);
-                    let session = cdm.open_session();
-                    let challenge = session.get_license_challenge(pssh.wrm_headers()[0].clone())?;
+                    let challenge =
+                        cdm.get_license_challenge(pssh.wrm_headers()[0].clone(), None)?;
                     let response = client
                         .post(license_url.to_owned())
                         .header(reqwest::header::CONTENT_TYPE, "text/xml; charset=utf-8")
@@ -154,7 +154,7 @@ impl License {
                     }
 
                     let data = response.text().await?;
-                    let keys = session.get_keys_from_challenge_response(&data)?;
+                    let keys = cdm.get_keys_from_challenge_response(&data)?;
 
                     for (kid, key) in &keys {
                         info!("DrmKey [{}] {}:{}", "prd".magenta(), kid, key);
