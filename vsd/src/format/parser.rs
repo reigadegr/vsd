@@ -5,8 +5,8 @@ use crate::{
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum FormatExpr {
-    Fallback(Vec<FormatExpr>),
-    Merge(Vec<FormatExpr>),
+    Fallback(Vec<Self>),
+    Merge(Vec<Self>),
     Single {
         base: BaseFormat,
         filters: Vec<Filter>,
@@ -14,7 +14,7 @@ pub enum FormatExpr {
     Index(usize),
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum BaseFormat {
     BestVideo,
     BestAudio,
@@ -28,14 +28,14 @@ pub enum BaseFormat {
     AllUnd,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Filter {
     pub field: Field,
     pub op: FilterOp,
     pub value: String,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Field {
     Width,
     Height,
@@ -50,7 +50,7 @@ pub enum Field {
     Vcodec,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum FilterOp {
     Eq,
     Ne,
@@ -101,7 +101,7 @@ impl FormatExpr {
             for part in &fallback_parts {
                 exprs.push(Self::parse_merge(part.trim())?);
             }
-            Ok(FormatExpr::Fallback(exprs))
+            Ok(Self::Fallback(exprs))
         }
     }
 
@@ -115,7 +115,7 @@ impl FormatExpr {
             for part in &parts {
                 exprs.push(Self::parse_single(part.trim())?);
             }
-            Ok(FormatExpr::Merge(exprs))
+            Ok(Self::Merge(exprs))
         }
     }
 
@@ -127,7 +127,7 @@ impl FormatExpr {
                     "stream index must be >= 1, got 0".into(),
                 ))
             } else {
-                Ok(FormatExpr::Index(idx - 1))
+                Ok(Self::Index(idx - 1))
             };
         }
 
@@ -141,12 +141,12 @@ impl FormatExpr {
         match base_str.trim() {
             "b" | "best" => {
                 let filters = Self::parse_filters(filters_str)?;
-                Ok(FormatExpr::Merge(vec![
-                    FormatExpr::Single {
+                Ok(Self::Merge(vec![
+                    Self::Single {
                         base: BaseFormat::BestVideo,
                         filters: filters.clone(),
                     },
-                    FormatExpr::Single {
+                    Self::Single {
                         base: BaseFormat::BestAudio,
                         filters,
                     },
@@ -154,12 +154,12 @@ impl FormatExpr {
             }
             "w" | "worst" => {
                 let filters = Self::parse_filters(filters_str)?;
-                Ok(FormatExpr::Merge(vec![
-                    FormatExpr::Single {
+                Ok(Self::Merge(vec![
+                    Self::Single {
                         base: BaseFormat::WorstVideo,
                         filters: filters.clone(),
                     },
-                    FormatExpr::Single {
+                    Self::Single {
                         base: BaseFormat::WorstAudio,
                         filters,
                     },
@@ -168,7 +168,7 @@ impl FormatExpr {
             _ => {
                 let base = Self::parse_base(base_str.trim())?;
                 let filters = Self::parse_filters(filters_str)?;
-                Ok(FormatExpr::Single { base, filters })
+                Ok(Self::Single { base, filters })
             }
         }
     }
@@ -185,7 +185,7 @@ impl FormatExpr {
             "allaud" => Ok(BaseFormat::AllAud),
             "allsub" => Ok(BaseFormat::AllSub),
             "allund" => Ok(BaseFormat::AllUnd),
-            _ => Err(Error::FormatParse(format!("unknown keyword '{}'", s))),
+            _ => Err(Error::FormatParse(format!("unknown keyword '{s}'"))),
         }
     }
 
@@ -199,7 +199,7 @@ impl FormatExpr {
 
         while let Some(start) = remaining.find('[') {
             let end = remaining.find(']').ok_or_else(|| {
-                Error::FormatParse(format!("unclosed bracket in '{}'", remaining))
+                Error::FormatParse(format!("unclosed bracket in '{remaining}'"))
             })?;
             let inner = &remaining[start + 1..end];
             filters.push(Self::parse_one_filter(inner)?);
@@ -236,7 +236,7 @@ impl FormatExpr {
             }
         }
 
-        Err(Error::FormatParse(format!("invalid filter '[{}]'", s)))
+        Err(Error::FormatParse(format!("invalid filter '[{s}]'")))
     }
 
     fn parse_field(s: &str) -> Result<Field> {
@@ -252,7 +252,7 @@ impl FormatExpr {
             "audio_channels" => Ok(Field::AudioChannels),
             "acodec" => Ok(Field::Acodec),
             "vcodec" => Ok(Field::Vcodec),
-            _ => Err(Error::FormatParse(format!("unknown field '{}'", s))),
+            _ => Err(Error::FormatParse(format!("unknown field '{s}'"))),
         }
     }
 
@@ -261,7 +261,7 @@ impl FormatExpr {
     /// Returns the selected stream indices (0-based), in order.
     pub fn eval(&self, streams: &[MediaPlaylist]) -> Vec<usize> {
         match self {
-            FormatExpr::Fallback(exprs) => {
+            Self::Fallback(exprs) => {
                 // Use strict evaluation: a branch is only accepted if every
                 // sub-expression in its merge produced at least one result.
                 for e in exprs {
@@ -271,7 +271,7 @@ impl FormatExpr {
                 }
                 Vec::new()
             }
-            FormatExpr::Merge(exprs) => {
+            Self::Merge(exprs) => {
                 // Lenient: union all sub-expression results, silently
                 // skipping any that match nothing.
                 let mut merged = Vec::new();
@@ -284,8 +284,8 @@ impl FormatExpr {
                 }
                 merged
             }
-            FormatExpr::Single { base, filters } => Self::eval_single(streams, base, filters),
-            FormatExpr::Index(i) => {
+            Self::Single { base, filters } => Self::eval_single(streams, base, filters),
+            Self::Index(i) => {
                 if *i < streams.len() {
                     vec![*i]
                 } else {
@@ -297,7 +297,7 @@ impl FormatExpr {
 
     fn eval_strict(&self, streams: &[MediaPlaylist]) -> Option<Vec<usize>> {
         match self {
-            FormatExpr::Fallback(exprs) => {
+            Self::Fallback(exprs) => {
                 for e in exprs {
                     if let Some(result) = e.eval_strict(streams) {
                         return Some(result);
@@ -305,7 +305,7 @@ impl FormatExpr {
                 }
                 None
             }
-            FormatExpr::Merge(exprs) => {
+            Self::Merge(exprs) => {
                 let mut merged = Vec::new();
                 for e in exprs {
                     let result = e.eval_strict(streams)?;
@@ -317,7 +317,7 @@ impl FormatExpr {
                 }
                 Some(merged)
             }
-            FormatExpr::Single { base, filters } => {
+            Self::Single { base, filters } => {
                 let result = Self::eval_single(streams, base, filters);
                 if result.is_empty() {
                     None
@@ -325,7 +325,7 @@ impl FormatExpr {
                     Some(result)
                 }
             }
-            FormatExpr::Index(i) => {
+            Self::Index(i) => {
                 if *i < streams.len() {
                     Some(vec![*i])
                 } else {
@@ -402,11 +402,11 @@ impl FormatExpr {
             match op {
                 FilterOp::Eq => value.split(',').any(|v| {
                     let v = v.trim().to_lowercase();
-                    actual == v || actual.starts_with(&format!("{}-", v))
+                    actual == v || actual.starts_with(&format!("{v}-"))
                 }),
                 FilterOp::Ne => value.split(',').all(|v| {
                     let v = v.trim().to_lowercase();
-                    actual != v && !actual.starts_with(&format!("{}-", v))
+                    actual != v && !actual.starts_with(&format!("{v}-"))
                 }),
                 FilterOp::Contains => actual.contains(&value.trim().to_lowercase()),
                 FilterOp::StartsWith => actual.starts_with(&value.trim().to_lowercase()),
@@ -417,19 +417,19 @@ impl FormatExpr {
 
         match &filter.field {
             Field::Width => compare_numeric(
-                stream.resolution.map(|(w, _)| w as f64).unwrap_or(0.0),
+                stream.resolution.map_or(0.0, |(w, _)| w as f64),
                 &filter.op,
                 &filter.value,
             ),
             Field::Height => compare_numeric(
-                stream.resolution.map(|(_, h)| h as f64).unwrap_or(0.0),
+                stream.resolution.map_or(0.0, |(_, h)| h as f64),
                 &filter.op,
                 &filter.value,
             ),
             Field::Resolution => compare_string(
                 stream
                     .resolution
-                    .map(|(w, h)| format!("{}x{}", w, h))
+                    .map(|(w, h)| format!("{w}x{h}"))
                     .as_deref()
                     .unwrap_or(""),
                 &filter.op,
@@ -441,17 +441,17 @@ impl FormatExpr {
                 &filter.value,
             ),
             Field::Tbr | Field::Abr | Field::Vbr => compare_numeric(
-                stream.bandwidth.map(|b| b as f64 / 1000.0).unwrap_or(0.0),
+                stream.bandwidth.map_or(0.0, |b| b as f64 / 1000.0),
                 &filter.op,
                 &filter.value,
             ),
             Field::Fps => compare_numeric(
-                stream.frame_rate.map(|f| f as f64).unwrap_or(0.0),
+                stream.frame_rate.map_or(0.0, f64::from),
                 &filter.op,
                 &filter.value,
             ),
             Field::AudioChannels => compare_numeric(
-                stream.channels.map(|c| c as f64).unwrap_or(0.0),
+                stream.channels.map_or(0.0, f64::from),
                 &filter.op,
                 &filter.value,
             ),

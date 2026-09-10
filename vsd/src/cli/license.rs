@@ -30,7 +30,7 @@ pub struct License {
 
     /// Path to the playready device (.prd) file.
     ///
-    /// To create a .prd file, see https://pypi.org/project/pyplayready
+    /// To create a .prd file, see <https://pypi.org/project/pyplayready>
     #[arg(long, value_name = "PRD", help_heading = "Playready Options")]
     playready_device: Option<PathBuf>,
 
@@ -44,7 +44,7 @@ pub struct License {
 
     /// Path to the widevine device (.wvd) file.
     ///
-    /// To create a .wvd file, see https://pypi.org/project/pywidevine
+    /// To create a .wvd file, see <https://pypi.org/project/pywidevine>
     #[arg(long, value_name = "WVD", help_heading = "Widevine Options")]
     widevine_device: Option<PathBuf>,
 
@@ -202,7 +202,7 @@ impl License {
                     let keys: Vec<widevine::Key> = unsafe { std::mem::transmute(keys) };
 
                     for key in keys {
-                        if let widevine::KeyType::CONTENT = key.typ {
+                        if key.typ == widevine::KeyType::CONTENT {
                             info!(
                                 "DrmKey [{}] {}:{}",
                                 "wvd".magenta(),

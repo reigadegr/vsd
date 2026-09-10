@@ -94,7 +94,7 @@ fn interact_modern(streams: &[MediaPlaylist], selected: &[usize]) -> Result<Vec<
                 .map(|x| {
                     x.text
                         .split('|')
-                        .map(|s| s.trim())
+                        .map(str::trim)
                         .collect::<Vec<_>>()
                         .join(" ")
                 })

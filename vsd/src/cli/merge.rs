@@ -40,7 +40,7 @@ impl Merge {
             .iter()
             .filter_map(|p| glob::glob(p).ok())
             .flatten()
-            .filter_map(|res| res.ok())
+            .filter_map(std::result::Result::ok)
             .filter(|f| {
                 if let Some(out) = output_canonical.as_ref() {
                     return f.canonicalize().ok().as_ref() != Some(out);

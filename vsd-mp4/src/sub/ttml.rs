@@ -94,10 +94,10 @@ pub struct Span {
 impl TtmlContent {
     fn format(&self) -> String {
         match self {
-            TtmlContent::Text(t) => t.clone(),
-            TtmlContent::Br => "\n".to_owned(),
-            TtmlContent::Span(span) => {
-                let inner_text: String = span.content.iter().map(|x| x.format()).collect();
+            Self::Text(t) => t.clone(),
+            Self::Br => "\n".to_owned(),
+            Self::Span(span) => {
+                let inner_text: String = span.content.iter().map(Self::format).collect();
                 span.format(inner_text)
             }
         }
@@ -140,7 +140,7 @@ impl TT {
             for paragraph in &div.paragraphs {
                 cues.push(Cue {
                     end_time: parse_ttml_time(&paragraph.end).unwrap(),
-                    payload: paragraph.content.iter().map(|x| x.format()).collect(),
+                    payload: paragraph.content.iter().map(TtmlContent::format).collect(),
                     settings: String::new(),
                     start_time: parse_ttml_time(&paragraph.begin).unwrap(),
                 });
@@ -151,6 +151,7 @@ impl TT {
     }
 
     /// Converts the TTML document into a [`Subtitles`] object.
+    #[must_use]
     pub fn into_subtitles(self) -> Subtitles {
         let mut subs = Subtitles::new();
         subs.extend_cues(self.into_cues());
@@ -205,7 +206,7 @@ fn parse_clock_time(input: &str, frame_rate: f32) -> Result<f32, ParseFloatError
         (s, 0.0)
     };
 
-    Ok((h * 3600.0) + (m * 60.0) + s + (frames / frame_rate))
+    Ok(m.mul_add(60.0, h * 3600.0) + s + (frames / frame_rate))
 }
 
 /// Handles "10h", "500ms", "24f", etc.

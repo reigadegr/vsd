@@ -23,6 +23,7 @@ pub struct Mp4Parser {
 }
 
 impl Mp4Parser {
+    #[must_use]
     pub fn new() -> Self {
         Self::default()
     }
@@ -52,7 +53,7 @@ impl Mp4Parser {
     }
 
     /// Stops the parsing loop immediately.
-    pub fn stop(&mut self) {
+    pub const fn stop(&mut self) {
         self.done = true;
     }
 
@@ -105,7 +106,7 @@ impl Mp4Parser {
             return Ok(());
         }
 
-        let mut size = reader.read_u32()? as u64;
+        let mut size = u64::from(reader.read_u32()?);
         let type_ = reader.read_u32()? as usize;
         let name = type_to_string(type_)?;
         let mut has_64_bit_size = false;
@@ -130,7 +131,7 @@ impl Mp4Parser {
             let mut version = None;
             let mut flags = None;
 
-            if let BoxType::FullBox = header_type {
+            if matches!(header_type, BoxType::FullBox) {
                 if stop_on_partial && reader.get_position() + 4 > reader.get_length() {
                     self.done = true;
                     return Ok(());
@@ -160,7 +161,7 @@ impl Mp4Parser {
             let payload = if payload_size > 0 {
                 reader.read_bytes_u8(payload_size as usize)?
             } else {
-                Vec::with_capacity(0)
+                Vec::new()
             };
 
             let payload_reader = Reader::new_big_endian(&payload);
@@ -350,6 +351,7 @@ pub fn alldata(
 
 /// Convert an ascii string name to the integer type for a box.
 /// The name must be four characters long.
+#[must_use]
 pub fn type_from_string(name: &str) -> usize {
     assert!(name.len() == 4, "MP4 box names must be 4 characters long");
 
@@ -392,8 +394,8 @@ pub struct ParsedBox<'a> {
     pub parser: &'a mut Mp4Parser,
     /// If true, allows reading partial payloads from some boxes. If the goal is a
     /// child box, we can sometimes find it without enough data to find all child
-    /// boxes. This property allows the partialOkay flag from parse() to be
-    /// propagated through methods like children().
+    /// boxes. This property allows the partialOkay flag from `parse()` to be
+    /// propagated through methods like `children()`.
     pub partial_okay: bool,
     /// If true, stop reading if an incomplete box is detected.
     pub stop_on_partial: bool,
@@ -416,10 +418,11 @@ pub struct ParsedBox<'a> {
     pub header: Vec<u8>,
 }
 
-impl<'a> ParsedBox<'a> {
+impl ParsedBox<'_> {
     /// Find the header size of the box.
     /// Useful for modifying boxes in place or finding the exact offset of a field.
-    pub fn header_size(&self) -> u64 {
+    #[must_use]
+    pub const fn header_size(&self) -> u64 {
         let basic_header_size = 8;
         let _64_bit_field_size = if self.has_64_bit_size { 8 } else { 0 };
         let version_and_flags_size = if self.flags.is_some() { 4 } else { 0 };
@@ -428,6 +431,7 @@ impl<'a> ParsedBox<'a> {
 
     /// Get the full box data including header.
     /// Merges the stored header with the payload from the reader.
+    #[must_use]
     pub fn full_data(&self) -> Vec<u8> {
         let mut data = Vec::with_capacity(self.header.len() + self.reader.as_bytes().len());
         data.extend_from_slice(&self.header);

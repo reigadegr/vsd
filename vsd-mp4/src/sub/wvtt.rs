@@ -6,7 +6,7 @@
 
 */
 
-//! WebVTT subtitle parser for MP4 container streams.
+//! `WebVTT` subtitle parser for MP4 container streams.
 
 use crate::{
     Error, Reader, Result, bail,
@@ -17,7 +17,7 @@ use crate::{
 };
 use std::{cell::RefCell, rc::Rc};
 
-/// A parser for extracting WebVTT (VTT) subtitles from MP4 files.
+/// A parser for extracting `WebVTT` (VTT) subtitles from MP4 files.
 pub struct WvttSubsParser {
     pub timescale: u32,
 }
@@ -176,7 +176,7 @@ impl WvttSubsParser {
                 current_time
             };
 
-            current_time = start_time + duration.unwrap_or_default() as u64;
+            current_time = start_time + u64::from(duration.unwrap_or_default());
 
             // Read samples until it adds up to the given size.
             let mut total_size = 0;
@@ -228,7 +228,7 @@ impl WvttSubsParser {
                     bail!(
                         "The samples do not fit evenly into the sample sizes given in the TRUN box."
                     );
-                };
+                }
 
                 // If no sampleSize was specified, it's assumed that this presentation
                 // corresponds to only a single cue.
@@ -242,7 +242,7 @@ impl WvttSubsParser {
 
         if reader.has_more_data() {
             bail!("MDAT which contain VTT cues and non-VTT data are not currently supported.");
-        };
+        }
 
         Ok(cues.into_iter().flatten().collect())
     }

@@ -20,7 +20,7 @@ impl TfdtBox {
             base_media_decode_time: if version == 1 {
                 reader.read_u64()?
             } else {
-                reader.read_u32()? as u64
+                u64::from(reader.read_u32()?)
             },
         })
     }

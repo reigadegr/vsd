@@ -14,24 +14,24 @@ pub enum Decrypter {
 }
 
 impl Decrypter {
-    pub fn is_hls(&self) -> bool {
-        matches!(self, Decrypter::Aes128(_) | Decrypter::SampleAes(_))
+    pub const fn is_hls(&self) -> bool {
+        matches!(self, Self::Aes128(_) | Self::SampleAes(_))
     }
 
-    pub fn increment_iv(&mut self) {
+    pub const fn increment_iv(&mut self) {
         match self {
-            Decrypter::Aes128(processor) => processor.increment_iv(),
-            Decrypter::SampleAes(processor) => processor.increment_iv(),
+            Self::Aes128(processor) => processor.increment_iv(),
+            Self::SampleAes(processor) => processor.increment_iv(),
             _ => (),
         }
     }
 
     pub fn decrypt(&self, input: Vec<u8>) -> Result<Vec<u8>> {
         Ok(match self {
-            Decrypter::Cenc(processor) => processor.decrypt_fragment(input, None)?,
-            Decrypter::Aes128(processor) => processor.decrypt(input),
-            Decrypter::SampleAes(processor) => processor.decrypt(input),
-            Decrypter::None => input,
+            Self::Cenc(processor) => processor.decrypt_fragment(input, None)?,
+            Self::Aes128(processor) => processor.decrypt(input),
+            Self::SampleAes(processor) => processor.decrypt(input),
+            Self::None => input,
         })
     }
 }

@@ -15,12 +15,11 @@ impl MediaPlaylist {
     /// Resolves the absolute path to the local output file for this stream.
     pub(crate) fn path(&self, directory: Option<&PathBuf>) -> PathBuf {
         let filename = format!("vsd-{}-{}.{}", self.media_type, self.id, self.extension());
-        directory
-            .map(|d| d.join(&filename))
-            .unwrap_or_else(|| PathBuf::from(filename))
+        directory.map_or_else(|| PathBuf::from(&filename), |d| d.join(&filename))
     }
 
     /// Extracts the default key ID (KID) in hexadecimal format if the stream is encrypted.
+    #[must_use]
     pub fn default_kid(&self) -> Option<String> {
         self.segments
             .first()
@@ -32,6 +31,7 @@ impl MediaPlaylist {
     /// Determines the file extension of the media segments.
     ///
     /// Checks segment URIs, map URIs, and falls back to protocol defaults (`ts` for HLS, `mp4` for DASH).
+    #[must_use]
     pub fn extension(&self) -> &str {
         if let Some(ext) = &self.extension {
             return ext;
@@ -139,7 +139,7 @@ impl MediaPlaylist {
         self.bandwidth
             .and_then(|b| {
                 let b = b / 1000;
-                if b > 0 { Some(format!("{}k", b)) } else { None }
+                if b > 0 { Some(format!("{b}k")) } else { None }
             })
             .unwrap_or("?".to_owned())
     }
@@ -147,34 +147,33 @@ impl MediaPlaylist {
     fn fmt_codecs(&self) -> String {
         self.codecs
             .as_ref()
-            .map(|c| {
+            .map_or("?".to_owned(), |c| {
                 if c.len() > 12 {
                     format!("{}…", &c[..11])
                 } else {
                     c.to_owned()
                 }
             })
-            .unwrap_or("?".to_owned())
     }
 
     fn fmt_language(&self) -> String {
         self.language
             .as_ref()
-            .map(|c| {
+            .map_or("?".to_owned(), |c| {
                 if c.len() > 10 {
                     format!("{}…", &c[..9])
                 } else {
                     c.to_owned()
                 }
             })
-            .unwrap_or("?".to_owned())
     }
 
     /// Returns a formatted string representation of the media playlist suitable for printing in console logs or stream listings.
+    #[must_use]
     pub fn display(&self) -> String {
         self.to_string()
             .split('|')
-            .map(|x| x.replace(" ", ""))
+            .map(|x| x.replace(' ', ""))
             .collect::<Vec<String>>()
             .join(" ")
     }
@@ -188,12 +187,12 @@ impl std::fmt::Display for MediaPlaylist {
                     f,
                     "{:>9} | {:>5} | {:>12} | {:>3} fps",
                     self.resolution
-                        .map(|(w, h)| format!("{}x{}", w, h))
+                        .map(|(w, h)| format!("{w}x{h}"))
                         .unwrap_or_default(),
                     self.fmt_bandwidth(),
                     self.fmt_codecs(),
                     self.frame_rate
-                        .map(|f| format!("{:.0}", f))
+                        .map(|f| format!("{f:.0}"))
                         .as_deref()
                         .unwrap_or("?")
                 )?;

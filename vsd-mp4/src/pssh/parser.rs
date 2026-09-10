@@ -78,7 +78,7 @@ impl PsshBox {
                 system_id: if system_id == COMMON_SYSTEM_ID {
                     SystemId::Common
                 } else {
-                    SystemId::Other(system_id.to_owned())
+                    SystemId::Other(system_id.clone())
                 },
             };
             let num_key_ids = box_.reader.read_u32()?;
@@ -107,7 +107,7 @@ impl PsshBox {
             system_id: match system_id.as_str() {
                 PLAYREADY_SYSTEM_ID => SystemId::PlayReady,
                 WIDEVINE_SYSTEM_ID => SystemId::WideVine,
-                _ => SystemId::Other(system_id.to_owned()),
+                _ => SystemId::Other(system_id.clone()),
             },
         });
         Ok(())
@@ -115,15 +115,15 @@ impl PsshBox {
 }
 
 /// The DRM system identifier used in a PSSH box.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SystemId {
-    /// Common SystemID (e.g. W3C Common Encryption).
+    /// Common `SystemID` (e.g. W3C Common Encryption).
     Common,
     /// Custom or unrecognized system identifier.
     Other(String),
-    /// Microsoft PlayReady SystemID.
+    /// Microsoft `PlayReady` `SystemID`.
     PlayReady,
-    /// Google Widevine SystemID.
+    /// Google Widevine `SystemID`.
     WideVine,
 }
 
@@ -133,10 +133,10 @@ impl std::fmt::Display for SystemId {
             f,
             "{}",
             match self {
-                SystemId::Common => "cen",
-                SystemId::Other(x) => x,
-                SystemId::PlayReady => "prd",
-                SystemId::WideVine => "wvd",
+                Self::Common => "cen",
+                Self::Other(x) => x,
+                Self::PlayReady => "prd",
+                Self::WideVine => "wvd",
             }
         )
     }
@@ -161,6 +161,7 @@ impl PartialEq for PsshData {
 
 impl PsshData {
     /// Encodes the binary PSSH box data into a base64 string.
+    #[must_use]
     pub fn as_base64(&self) -> String {
         base64::engine::general_purpose::STANDARD.encode(&self.data)
     }

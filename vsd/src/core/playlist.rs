@@ -56,6 +56,7 @@ pub struct PlaylistDownloader {
 
 impl PlaylistDownloader {
     /// Creates a new [`PlaylistDownloader`] with defaults.
+    #[must_use]
     pub fn new(client: &Client) -> Self {
         Self {
             base_url: None,
@@ -94,7 +95,8 @@ impl PlaylistDownloader {
     }
 
     /// Sets whether to attempt decrypting the streams (default: `true`).
-    pub fn decrypt(mut self, decrypt: bool) -> Self {
+    #[must_use]
+    pub const fn decrypt(mut self, decrypt: bool) -> Self {
         self.config.decrypt = decrypt;
         self
     }
@@ -117,7 +119,8 @@ impl PlaylistDownloader {
     ///
     /// If `raw` is `true`, a basic text list prompt is displayed;
     /// otherwise, a modern interactive multi-select prompt is used.
-    pub fn interactive(mut self, raw: bool) -> Self {
+    #[must_use]
+    pub const fn interactive(mut self, raw: bool) -> Self {
         if raw {
             self.select_type = SelectType::Raw;
         } else {
@@ -126,14 +129,16 @@ impl PlaylistDownloader {
         self
     }
 
-    /// Sets the decryption keys (key_id hex -> key hex).
+    /// Sets the decryption keys (`key_id` hex -> key hex).
+    #[must_use]
     pub fn keys(mut self, keys: HashMap<String, String>) -> Self {
         self.config.keys = keys;
         self
     }
 
     /// Sets whether to merge downloaded streams into a single output file (default: `true`).
-    pub fn merge(mut self, merge: bool) -> Self {
+    #[must_use]
+    pub const fn merge(mut self, merge: bool) -> Self {
         self.config.merge = merge;
         self
     }
@@ -145,6 +150,7 @@ impl PlaylistDownloader {
     }
 
     /// Sets query parameters to append to requests.
+    #[must_use]
     pub fn query(mut self, query: &str) -> Self {
         if query.is_empty() {
             return self;
@@ -166,13 +172,15 @@ impl PlaylistDownloader {
     }
 
     /// Sets whether to resume partial downloads (default: `true`).
-    pub fn resume(mut self, resume: bool) -> Self {
+    #[must_use]
+    pub const fn resume(mut self, resume: bool) -> Self {
         self.config.resume = resume;
         self
     }
 
     /// Sets the maximum retry count per segment download (default: `10`).
-    pub fn retries(mut self, retries: u8) -> Self {
+    #[must_use]
+    pub const fn retries(mut self, retries: u8) -> Self {
         self.config.retries = retries;
         self
     }
@@ -184,13 +192,15 @@ impl PlaylistDownloader {
     }
 
     /// Sets concurrent segment download thread count (default: `5`, clamped between 1 and 16).
+    #[must_use]
     pub fn threads(mut self, threads: u8) -> Self {
         self.config.threads = threads.clamp(1, 16);
         self
     }
 
     /// Gets a reference to the download configuration.
-    pub fn get_config(&self) -> &PlaylistDownloadConfig {
+    #[must_use]
+    pub const fn get_config(&self) -> &PlaylistDownloadConfig {
         &self.config
     }
 

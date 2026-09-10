@@ -81,8 +81,7 @@ pub fn parse_as_master(base_url: &Url, mpd: &MPD) -> MasterPlaylist {
                 live: mpd
                     .mpdtype
                     .as_ref()
-                    .map(|x| x == "dynamic")
-                    .unwrap_or(false),
+                    .is_some_and(|x| x == "dynamic"),
                 media_sequence: 0,
                 media_type,
                 playlist_type: PlaylistType::Dash,

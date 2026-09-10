@@ -245,11 +245,11 @@ impl std::fmt::Display for Eta {
         let seconds = total_seconds % 60;
 
         if hours > 0 {
-            write!(f, "{}h{}m{}s", hours, minutes, seconds)
+            write!(f, "{hours}h{minutes}m{seconds}s")
         } else if minutes > 0 {
-            write!(f, "{}m{}s", minutes, seconds)
+            write!(f, "{minutes}m{seconds}s")
         } else {
-            write!(f, "{}s", seconds)
+            write!(f, "{seconds}s")
         }
     }
 }

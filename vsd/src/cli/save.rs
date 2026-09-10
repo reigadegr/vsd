@@ -110,7 +110,7 @@ pub struct Save {
 
     /// Format expression for selecting streams.
     ///
-    /// Visit https://clitic.github.io/vsd/usage/#format-selection for more info.
+    /// Visit <https://clitic.github.io/vsd/usage/#format-selection> for more info.
     #[arg(
         short = 'f',
         long,
@@ -199,7 +199,7 @@ impl Save {
                 if stream.media_type == MediaType::Video {
                     stream
                         .resolution
-                        .map(|(w, h)| format!("{}x{}", w, h))
+                        .map(|(w, h)| format!("{w}x{h}"))
                         .unwrap_or_default()
                 } else {
                     stream
@@ -218,7 +218,7 @@ impl Save {
                     .bandwidth
                     .and_then(|b| {
                         let b = b / 1000;
-                        if b > 0 { Some(format!("{}k", b)) } else { None }
+                        if b > 0 { Some(format!("{b}k")) } else { None }
                     })
                     .unwrap_or_default(),
                 stream
@@ -234,7 +234,7 @@ impl Save {
                     .unwrap_or_default(),
                 stream
                     .frame_rate
-                    .map(|f| format!("{:.0}", f))
+                    .map(|f| format!("{f:.0}"))
                     .unwrap_or_default(),
                 stream.channels.map(|c| c.to_string()).unwrap_or_default()
             );

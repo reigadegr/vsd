@@ -4,8 +4,8 @@ mod file;
 mod mux;
 mod playlist;
 
-pub(crate) mod sub;
-pub(crate) mod vid;
+pub mod sub;
+pub mod vid;
 
 pub use file::FileDownloader;
 pub use mux::{Muxer, Stream};

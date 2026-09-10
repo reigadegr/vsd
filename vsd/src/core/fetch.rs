@@ -27,9 +27,9 @@ pub async fn playlist(
 
         if let Some(ext) = path.extension() {
             if ext == "mpd" {
-                typ = Some(PlaylistType::Dash)
+                typ = Some(PlaylistType::Dash);
             } else if ext == "m3u" || ext == "m3u8" {
-                typ = Some(PlaylistType::Hls)
+                typ = Some(PlaylistType::Hls);
             }
         }
 
@@ -39,7 +39,7 @@ pub async fn playlist(
             typ,
         })
     } else if let Ok(input) = uri.parse::<Url>() {
-        debug!("Fetching {} (playlist)", input);
+        debug!("Fetching {input} (playlist)");
         let response = config
             .client
             .get(input)
@@ -53,11 +53,11 @@ pub async fn playlist(
             .and_then(|x| x.to_str().ok())
         {
             if content_type == "application/dash+xml" || content_type == "video/vnd.mpeg.dash.mpd" {
-                typ = Some(PlaylistType::Dash)
+                typ = Some(PlaylistType::Dash);
             } else if content_type == "application/x-mpegurl"
                 || content_type == "application/vnd.apple.mpegurl"
             {
-                typ = Some(PlaylistType::Hls)
+                typ = Some(PlaylistType::Hls);
             }
         }
 

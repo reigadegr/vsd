@@ -81,7 +81,7 @@ impl Capture {
         }
 
         if let Some(proxy) = self.proxy {
-            config = config.arg(format!("--proxy-server=\"{}\"", proxy));
+            config = config.arg(format!("--proxy-server=\"{proxy}\""));
         }
 
         let (mut browser, mut handler) = Browser::launch(config.build()?).await?;
@@ -147,7 +147,7 @@ fn log_curl_cmd(request: &Request) {
             }
 
             let value = value.as_str().unwrap_or("");
-            let value = value.replace("'", "'\\''");
+            let value = value.replace('\'', "'\\''");
             cmd.push_str(&format!(" {} '{}: {}'", "-H", key, value));
         }
     }
@@ -164,14 +164,14 @@ fn log_curl_cmd(request: &Request) {
         }
 
         if !body.is_empty() {
-            let body = body.replace("'", "'\\''");
-            cmd.push_str(&format!(" -d '{}'", body));
+            let body = body.replace('\'', "'\\''");
+            cmd.push_str(&format!(" -d '{body}'"));
         }
     }
 
-    let url = request.url.replace("'", "'\\''");
+    let url = request.url.replace('\'', "'\\''");
     cmd.push_str(&format!(" '{}' --compressed", url.cyan()));
 
     info!("{}", "-".repeat(40).dimmed());
-    info!("{}", cmd);
+    info!("{cmd}");
 }

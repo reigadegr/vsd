@@ -17,11 +17,11 @@ impl std::error::Error for Error {}
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Error::InvalidKeySize(x) => {
-                write!(f, "invalid key size: expected 16 bytes got {0} bytes.", x)
+            Self::InvalidKeySize(x) => {
+                write!(f, "invalid key size: expected 16 bytes got {x} bytes.")
             }
-            Error::Io(x) => write!(f, "i/o error: {}", x),
-            Error::Other(x) => write!(f, "{}", x),
+            Self::Io(x) => write!(f, "i/o error: {x}"),
+            Self::Other(x) => write!(f, "{x}"),
         }
     }
 }

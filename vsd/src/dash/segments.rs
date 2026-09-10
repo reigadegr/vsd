@@ -51,15 +51,13 @@ pub async fn push_segments(
             let period_start = period
                 .start
                 .as_ref()
-                .map(|d| d.as_secs_f64())
-                .unwrap_or(0.0);
+                .map_or(0.0, std::time::Duration::as_secs_f64);
             let total_elapsed =
                 ((now - ast).num_milliseconds() as f64 / 1000.0 - period_start).max(0.0);
             let window = mpd
                 .timeShiftBufferDepth
                 .as_ref()
-                .map(|d| d.as_secs_f64())
-                .unwrap_or(total_elapsed);
+                .map_or(total_elapsed, std::time::Duration::as_secs_f64);
             let capped = total_elapsed.min(window);
             (capped, total_elapsed - capped)
         } else {
@@ -145,13 +143,13 @@ pub async fn push_segments(
 /// Init maps are attached directly to the first segment.
 ///
 /// Addressing modes (in order):
-/// 1. Representation > SegmentList
-/// 2. AdaptationSet > SegmentList
-/// 3. SegmentTemplate + SegmentTimeline
+/// 1. Representation > `SegmentList`
+/// 2. `AdaptationSet` > `SegmentList`
+/// 3. `SegmentTemplate` + `SegmentTimeline`
 /// 4. SegmentTemplate@duration
-/// 5. Representation > SegmentBase
-/// 6. AdaptationSet > SegmentBase
-/// 7. Plain BaseURL
+/// 5. Representation > `SegmentBase`
+/// 6. `AdaptationSet` > `SegmentBase`
+/// 7. Plain `BaseURL`
 async fn resolve_segments(
     config: &PlaylistDownloadConfig,
     adaptation_set: &AdaptationSet,

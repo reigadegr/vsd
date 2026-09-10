@@ -111,18 +111,17 @@ pub async fn download(
             stream.media_type.to_string().green(),
             temp_file.to_string_lossy()
         );
-        let size = fs::metadata(&temp_file).await.map(|x| x.len()).unwrap_or(0);
+        let size = fs::metadata(&temp_file).await.map_or(0, |x| x.len());
         progress.update_total(1);
         progress.update(size as usize);
         progress.finish();
         return Ok(temp_stream);
-    } else {
-        info!(
-            "Saving [{}] {}",
-            stream.media_type.to_string().green(),
-            temp_file.to_string_lossy()
-        );
     }
+    info!(
+        "Saving [{}] {}",
+        stream.media_type.to_string().green(),
+        temp_file.to_string_lossy()
+    );
 
     progress.update(size);
 

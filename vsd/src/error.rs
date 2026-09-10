@@ -51,24 +51,23 @@ impl std::error::Error for Error {}
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::CookieParse(x) => write!(f, "Failed to parse netscape cookie: {}.", x),
-            Self::DashParse(x) => write!(f, "Failed to resolve dash addressing: {}", x),
+            Self::CookieParse(x) => write!(f, "Failed to parse netscape cookie: {x}."),
+            Self::DashParse(x) => write!(f, "Failed to resolve dash addressing: {x}"),
             Self::DownloadInterrupted => write!(f, "Download interrupted due to ctrl+c."),
             Self::FfmpegFailed { code, message } => {
-                write!(f, "Failed to execute ffmpeg ({}): {}", code, message)
+                write!(f, "Failed to execute ffmpeg ({code}): {message}")
             }
-            Self::FormatParse(x) => write!(f, "Failed to parse format expr: {}.", x),
-            Self::MissingKey(x) => write!(f, "Missing decryption key for {}.", x),
+            Self::FormatParse(x) => write!(f, "Failed to parse format expr: {x}."),
+            Self::MissingKey(x) => write!(f, "Missing decryption key for {x}."),
             Self::MissingSegments => write!(f, "Stream contains no segments."),
-            Self::Mp4Parse(x) => write!(f, "vsd-mp4: {}", x),
-            Self::Other(x) => write!(f, "{}", x),
+            Self::Mp4Parse(x) => write!(f, "vsd-mp4: {x}"),
+            Self::Other(x) => write!(f, "{x}"),
             Self::RequestFailed { url, status, body } => {
-                write!(f, "Failed to request {} ({}): {}", url, status, body)
+                write!(f, "Failed to request {url} ({status}): {body}")
             }
             Self::UnsupportedEncryption(x) => write!(
                 f,
-                "Unsupported encryption method: {}. Use --no-decrypt flag to download encrypted streams.",
-                x
+                "Unsupported encryption method: {x}. Use --no-decrypt flag to download encrypted streams."
             ),
         }
     }
@@ -89,7 +88,7 @@ impl From<vsd_mp4::Error> for Error {
 impl From<reqwest::Error> for Error {
     fn from(e: reqwest::Error) -> Self {
         Self::RequestFailed {
-            url: e.url().map(|x| x.as_str()).unwrap_or("unknown").to_owned(),
+            url: e.url().map_or("unknown", reqwest::Url::as_str).to_owned(),
             status: e.status().unwrap_or_default(),
             body: e.to_string(),
         }

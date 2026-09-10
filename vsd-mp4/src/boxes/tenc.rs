@@ -18,7 +18,7 @@ pub struct TencBox {
     /// Number of 16-byte blocks to skip in pattern mode (CENS/CBCS).
     /// Only present in tenc version 1.
     pub skip_byte_block: u8,
-    /// Constant IV for CBCS mode (when per_sample_iv_size is 0).
+    /// Constant IV for CBCS mode (when `per_sample_iv_size` is 0).
     pub constant_iv: Option<[u8; 16]>,
 }
 
@@ -100,6 +100,7 @@ impl TencBox {
     }
 
     /// Get the default Key ID as a hexadecimal string.
+    #[must_use]
     pub fn default_kid_hex(&self) -> String {
         hex::encode(self.default_kid)
     }

@@ -176,13 +176,13 @@ impl ClipRange {
             2 => {
                 let ss = parts[1].parse::<f32>().ok()?;
                 let mm = parts[0].parse::<f32>().ok()?;
-                Some(mm * 60.0 + ss)
+                Some(mm.mul_add(60.0, ss))
             }
             3 => {
                 let hh = parts[0].parse::<f32>().ok()?;
                 let mm = parts[1].parse::<f32>().ok()?;
                 let ss = parts[2].parse::<f32>().ok()?;
-                Some(hh * 3600.0 + mm * 60.0 + ss)
+                Some(mm.mul_add(60.0, hh * 3600.0) + ss)
             }
             _ => None,
         }

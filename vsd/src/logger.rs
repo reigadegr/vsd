@@ -13,15 +13,12 @@ impl log::Log for Logger {
             match log::max_level() {
                 LevelFilter::Off => (),
                 LevelFilter::Error | LevelFilter::Warn | LevelFilter::Info => {
-                    match record.level() {
-                        Level::Info => {
-                            println!("{}", record.args());
-                        }
-                        _ => {
-                            let mut label = label(record.level());
-                            label.input = label.input.trim_start().to_owned();
-                            println!("{} {}", label, record.args());
-                        }
+                    if record.level() == Level::Info {
+                        println!("{}", record.args());
+                    } else {
+                        let mut label = label(record.level());
+                        label.input = label.input.trim_start().to_owned();
+                        println!("{} {}", label, record.args());
                     }
                 }
                 LevelFilter::Debug | LevelFilter::Trace if record.target().starts_with("vsd") => {

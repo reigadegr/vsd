@@ -13,6 +13,7 @@ pub struct Reader {
 
 impl Reader {
     /// Creates a new big-endian `Reader` for the given data.
+    #[must_use]
     pub fn new_big_endian(data: &[u8]) -> Self {
         Self {
             endian: Endianness::Big,
@@ -21,6 +22,7 @@ impl Reader {
     }
 
     /// Creates a new little-endian `Reader` for the given data.
+    #[must_use]
     pub fn new_little_endian(data: &[u8]) -> Self {
         Self {
             endian: Endianness::Little,
@@ -29,22 +31,26 @@ impl Reader {
     }
 
     /// Returns a slice referencing the underlying data.
+    #[must_use]
     pub fn as_bytes(&self) -> &[u8] {
         self.inner.get_ref()
     }
 
     /// Returns `true` if there is more data to be read.
-    pub fn has_more_data(&self) -> bool {
+    #[must_use]
+    pub const fn has_more_data(&self) -> bool {
         self.inner.position() < (self.inner.get_ref().len() as u64)
     }
 
     /// Returns the total length of the data in bytes.
-    pub fn get_length(&self) -> u64 {
+    #[must_use]
+    pub const fn get_length(&self) -> u64 {
         self.inner.get_ref().len() as u64
     }
 
     /// Returns the current read position.
-    pub fn get_position(&self) -> u64 {
+    #[must_use]
+    pub const fn get_position(&self) -> u64 {
         self.inner.position()
     }
 
@@ -142,7 +148,9 @@ impl Reader {
     pub fn read_bytes_u16(&mut self, bytes: usize) -> Result<Vec<u16>> {
         Ok(self
             .read_bytes_u8(bytes)?
-            .chunks_exact(2)
+            .as_chunks::<2>()
+            .0
+            .iter()
             .map(|x| match self.endian {
                 Endianness::Big => u16::from_be_bytes([x[0], x[1]]),
                 Endianness::Little => u16::from_le_bytes([x[0], x[1]]),

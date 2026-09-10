@@ -7,7 +7,7 @@ pub fn parse_as_master(base_url: &Url, m3u8: &m3u8_rs::MasterPlaylist) -> playli
     for stream in &m3u8.variants {
         streams.push(playlist::MediaPlaylist {
             bandwidth: Some(stream.bandwidth),
-            codecs: stream.codecs.to_owned(),
+            codecs: stream.codecs.clone(),
             extension: Some("ts".to_owned()),
             frame_rate: stream.frame_rate.map(|x| x as f32),
             id: utils::gen_id(base_url.as_str(), &stream.uri),
@@ -15,7 +15,7 @@ pub fn parse_as_master(base_url: &Url, m3u8: &m3u8_rs::MasterPlaylist) -> playli
             media_type: playlist::MediaType::Video,
             playlist_type: playlist::PlaylistType::Hls,
             resolution: stream.resolution.map(|r| (r.width, r.height)),
-            uri: stream.uri.to_owned(),
+            uri: stream.uri.clone(),
             ..Default::default()
         });
     }

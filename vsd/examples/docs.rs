@@ -26,7 +26,7 @@ fn generate_markdown(cmd: &Command) -> String {
     buffer.push_str("## Command Overview\n\n");
     for cmd_path in &all_commands {
         let anchor = cmd_path.replace(' ', "-");
-        buffer.push_str(&format!("- [`{}`↴](#{})\n", cmd_path, anchor));
+        buffer.push_str(&format!("- [`{cmd_path}`↴](#{anchor})\n"));
     }
     buffer.push('\n');
     write_command(&mut buffer, cmd, &[], 2);
@@ -58,11 +58,11 @@ fn write_command(buffer: &mut String, cmd: &Command, parents: &[&str], level: us
     buffer.push_str(&format!("{} `{}`\n\n", "#".repeat(level), full_name));
 
     if let Some(about) = cmd.get_long_about().or(cmd.get_about()) {
-        buffer.push_str(&format!("{}\n\n", about));
+        buffer.push_str(&format!("{about}\n\n"));
     }
 
     buffer.push_str("```\n");
-    buffer.push_str(&format!("{} [OPTIONS]", full_name));
+    buffer.push_str(&format!("{full_name} [OPTIONS]"));
 
     let positionals = cmd.get_positionals().collect::<Vec<_>>();
     for arg in &positionals {
@@ -96,7 +96,10 @@ fn write_command(buffer: &mut String, cmd: &Command, parents: &[&str], level: us
         buffer.push_str("| Command | Description |\n");
         buffer.push_str("|---------|-------------|\n");
         for sub in &subcommands {
-            let about = sub.get_about().map(|s| s.to_string()).unwrap_or_default();
+            let about = sub
+                .get_about()
+                .map(std::string::ToString::to_string)
+                .unwrap_or_default();
             buffer.push_str(&format!("| `{}` | {} |\n", sub.get_name(), about));
         }
         buffer.push('\n');
@@ -110,13 +113,13 @@ fn write_command(buffer: &mut String, cmd: &Command, parents: &[&str], level: us
     if !options.is_empty() {
         let mut grouped: BTreeMap<Option<String>, Vec<&Arg>> = BTreeMap::new();
         for arg in &options {
-            let heading = arg.get_help_heading().map(|s| s.to_string());
+            let heading = arg.get_help_heading().map(std::string::ToString::to_string);
             grouped.entry(heading).or_default().push(arg);
         }
 
         for (heading, args) in grouped {
             let heading_str = heading.as_deref().unwrap_or("Options");
-            buffer.push_str(&format!("**{}:**\n\n", heading_str));
+            buffer.push_str(&format!("**{heading_str}:**\n\n"));
             buffer.push_str("| Flag | Description |\n");
             buffer.push_str("|------|-------------|\n");
 
@@ -143,7 +146,7 @@ fn write_arg(buffer: &mut String, arg: &Arg) {
     let help = arg
         .get_long_help()
         .or(arg.get_help())
-        .map(|s| s.to_string())
+        .map(std::string::ToString::to_string)
         .unwrap_or_default();
 
     buffer.push_str(&format!(
@@ -157,17 +160,17 @@ fn write_arg(buffer: &mut String, arg: &Arg) {
 fn write_option(buffer: &mut String, arg: &Arg) {
     let mut flags = Vec::new();
     if let Some(short) = arg.get_short() {
-        flags.push(format!("-{}", short));
+        flags.push(format!("-{short}"));
     }
     if let Some(long) = arg.get_long() {
-        flags.push(format!("--{}", long));
+        flags.push(format!("--{long}"));
     }
     let flag_str = flags.join(", ");
 
     let mut help = arg
         .get_long_help()
         .or(arg.get_help())
-        .map(|s| s.to_string())
+        .map(std::string::ToString::to_string)
         .unwrap_or_default();
 
     let possible_values: Vec<_> = arg.get_possible_values();
@@ -176,7 +179,10 @@ fn write_option(buffer: &mut String, arg: &Arg) {
             .iter()
             .all(|v| v.get_name() == "true" || v.get_name() == "false");
     if !possible_values.is_empty() && !is_bool {
-        let values: Vec<_> = possible_values.iter().map(|v| v.get_name()).collect();
+        let values: Vec<_> = possible_values
+            .iter()
+            .map(clap::builder::PossibleValue::get_name)
+            .collect();
         help.push_str(&format!("<br>*Possible values:* `{}`", values.join("`, `")));
     }
 
@@ -189,5 +195,5 @@ fn write_option(buffer: &mut String, arg: &Arg) {
     }
 
     let help = help.replace('|', "\\|").replace('\n', "<br>");
-    buffer.push_str(&format!("| `{}` | {} |\n", flag_str, help));
+    buffer.push_str(&format!("| `{flag_str}` | {help} |\n"));
 }

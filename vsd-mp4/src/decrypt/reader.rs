@@ -15,7 +15,7 @@ impl Mp4Reader {
             Err(e) => return Err(e),
         }
 
-        let size = u32::from_be_bytes([buf[0], buf[1], buf[2], buf[3]]) as u64;
+        let size = u64::from(u32::from_be_bytes([buf[0], buf[1], buf[2], buf[3]]));
         let box_type = [buf[4], buf[5], buf[6], buf[7]];
 
         if size == 1 {

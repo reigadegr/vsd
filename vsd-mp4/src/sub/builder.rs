@@ -11,7 +11,7 @@
 
 use std::fmt::Write;
 
-pub(crate) struct Cue {
+pub struct Cue {
     pub(crate) end_time: f32,
     pub(crate) payload: String,
     pub(crate) settings: String,
@@ -55,6 +55,7 @@ impl Subtitles {
     }
 
     /// Build subtitles in subrip format.
+    #[must_use]
     pub fn as_srt(self) -> String {
         let cues = self.fix_cues().cues;
         let mut subtitles = String::new();
@@ -74,6 +75,7 @@ impl Subtitles {
     }
 
     /// Build subtitles in webvtt format.
+    #[must_use]
     pub fn as_vtt(self) -> String {
         let cues = self.fix_cues().cues;
         let mut subtitles = "WEBVTT\n\n".to_owned();

@@ -30,7 +30,7 @@ impl<'a> std::ops::Deref for Cookies<'a> {
     }
 }
 
-impl<'a> std::ops::DerefMut for Cookies<'a> {
+impl std::ops::DerefMut for Cookies<'_> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
@@ -53,8 +53,7 @@ impl<'a> Cookies<'a> {
             let end = input[start..]
                 .iter()
                 .position(|&b| b == b'\n')
-                .map(|p| start + p)
-                .unwrap_or(input.len());
+                .map_or(input.len(), |p| start + p);
             let mut line = &input[start..end];
             start = end + 1;
             if line.ends_with(b"\r") {
@@ -104,6 +103,7 @@ impl<'a> Cookies<'a> {
     }
 
     /// Serializes the collection of cookies back into a Netscape cookie file format string.
+    #[must_use]
     pub fn as_netscape(&self) -> String {
         let mut out = "# Netscape HTTP Cookie File\n\
         # https://curl.se/docs/http-cookies.html\n\
@@ -117,6 +117,7 @@ impl<'a> Cookies<'a> {
     }
 
     /// Converts the cookies into a `reqwest::cookie::Jar` for use in HTTP requests.
+    #[must_use]
     pub fn as_jar(&self) -> Jar {
         let jar = Jar::default();
 
@@ -128,8 +129,9 @@ impl<'a> Cookies<'a> {
     }
 }
 
-impl<'a> Cookie<'a> {
+impl Cookie<'_> {
     /// Formats the cookie as a standard HTTP `Set-Cookie` header value.
+    #[must_use]
     pub fn as_header(&self) -> String {
         let mut h = format!("{}={}", self.name, self.value);
         if !self.domain.is_empty() {
@@ -177,6 +179,7 @@ impl<'a> Cookie<'a> {
     }
 
     /// Generates a valid absolute URL string for the cookie based on its secure flag, domain, and path.
+    #[must_use]
     pub fn url(&self) -> String {
         format!(
             "{}://{}{}",
@@ -209,17 +212,17 @@ impl std::error::Error for ParseError {}
 impl std::fmt::Display for ParseError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            ParseError::InvalidBoolean(l, v) => write!(f, "Line {} bool: {}", l, v),
-            ParseError::InvalidColumnParams(l, c) => write!(f, "Line {} cols: {}", l, c),
-            ParseError::InvalidInteger(l, v) => write!(f, "Line {} int: {}", l, v),
-            ParseError::Utf8Error(e) => write!(f, "UTF-8 error: {}", e),
+            Self::InvalidBoolean(l, v) => write!(f, "Line {l} bool: {v}"),
+            Self::InvalidColumnParams(l, c) => write!(f, "Line {l} cols: {c}"),
+            Self::InvalidInteger(l, v) => write!(f, "Line {l} int: {v}"),
+            Self::Utf8Error(e) => write!(f, "UTF-8 error: {e}"),
         }
     }
 }
 
 impl From<str::Utf8Error> for ParseError {
     fn from(err: str::Utf8Error) -> Self {
-        ParseError::Utf8Error(err)
+        Self::Utf8Error(err)
     }
 }
 
@@ -239,7 +242,7 @@ impl<'a> From<&'a Vec<CookieParam>> for Cookies<'a> {
                     include_subdomains: false,
                     path: c.path.as_deref().unwrap_or(""),
                     secure: c.secure.unwrap_or(false),
-                    expires: c.expires.as_ref().map(|x| *x.inner() as i64).unwrap_or(0),
+                    expires: c.expires.as_ref().map_or(0, |x| *x.inner() as i64),
                     name: &c.name,
                     value: &c.value,
                     http_only: c.http_only.unwrap_or(false),

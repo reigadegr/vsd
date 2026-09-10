@@ -38,6 +38,7 @@ pub struct FileDownloader {
 
 impl FileDownloader {
     /// Creates a new [`FileDownloader`] with defaults.
+    #[must_use]
     pub fn new(client: &Client) -> Self {
         Self {
             chunk_size: CHUNK_SIZE,
@@ -50,7 +51,8 @@ impl FileDownloader {
     }
 
     /// Sets the size of each download chunk in bytes (default: `5 MiB`).
-    pub fn chunk_size(mut self, chunk_size: u64) -> Self {
+    #[must_use]
+    pub const fn chunk_size(mut self, chunk_size: u64) -> Self {
         self.chunk_size = chunk_size;
         self
     }
@@ -62,18 +64,21 @@ impl FileDownloader {
     }
 
     /// Sets whether to attempt resuming a previous download if the output file already exists (default: `true`).
-    pub fn resume(mut self, resume: bool) -> Self {
+    #[must_use]
+    pub const fn resume(mut self, resume: bool) -> Self {
         self.resume = resume;
         self
     }
 
     /// Sets the maximum number of retries per chunk on download failures (default: `10`).
-    pub fn retries(mut self, retries: u8) -> Self {
+    #[must_use]
+    pub const fn retries(mut self, retries: u8) -> Self {
         self.retries = retries;
         self
     }
 
     /// Sets the number of concurrent download threads (default: `5`, clamped between 1 and 16).
+    #[must_use]
     pub fn threads(mut self, threads: u8) -> Self {
         self.threads = threads.clamp(1, 16);
         self
@@ -95,7 +100,7 @@ impl FileDownloader {
         let url = url.parse::<Url>()?;
         let output = output.as_ref();
 
-        debug!("Fetching {} (file@head)", url);
+        debug!("Fetching {url} (file@head)");
         let response = self.client.head(url.clone()).send().await?;
         let status = response.status();
 
@@ -125,7 +130,7 @@ impl FileDownloader {
             .is_some_and(|v| v != "none");
 
         let bytes_written = if self.resume {
-            fs::metadata(output).await.map(|x| x.len()).unwrap_or(0)
+            fs::metadata(output).await.map_or(0, |x| x.len())
         } else {
             if output.exists() {
                 fs::remove_file(output).await?;
@@ -145,7 +150,7 @@ impl FileDownloader {
             let mut request = self.client.get(url.clone());
 
             if bytes_written > 0 {
-                request = request.header(header::RANGE, format!("bytes={}-", bytes_written));
+                request = request.header(header::RANGE, format!("bytes={bytes_written}-"));
             }
 
             let mut response = request.send().await?;
@@ -258,12 +263,12 @@ impl FileDownloader {
         max_retries: u8,
     ) -> Result<Vec<u8>> {
         let range_label = format!("{}-{}", range.0, range.1);
-        trace!("Fetching {} (file@{})", url, range_label);
+        trace!("Fetching {url} (file@{range_label})");
         let mut last_err = None;
 
         for attempt in 0..=max_retries {
             if attempt > 0 {
-                trace!("ReFetching {} (file@{})", url, range_label);
+                trace!("ReFetching {url} (file@{range_label})");
                 tokio::time::sleep(std::time::Duration::from_millis(500)).await;
             }
 
@@ -290,15 +295,14 @@ impl FileDownloader {
                     last_err = Some(Error::RequestFailed {
                         url: url.to_string(),
                         status: e.status().unwrap_or_default(),
-                        body: format!("GET range {}", range_label),
+                        body: format!("GET range {range_label}"),
                     });
                 }
             }
         }
 
         Err(last_err.unwrap_or(Error::Other(format!(
-            "{} download failed after max retries.",
-            url
+            "{url} download failed after max retries."
         ))))
     }
 

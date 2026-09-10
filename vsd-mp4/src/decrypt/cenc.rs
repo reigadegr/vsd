@@ -182,7 +182,7 @@ impl CencDecrypter {
             tenc.skip_byte_block,
             tenc.scheme_type,
         );
-        let mut offset = (state.start + trun.data_offset.unwrap_or(0) as u64) as usize;
+        let mut offset = (state.start + u64::from(trun.data_offset.unwrap_or(0))) as usize;
         let output_len = input.len();
 
         for (trun_sample, senc_sample) in trun.sample_data.iter().zip(senc.samples.iter()) {

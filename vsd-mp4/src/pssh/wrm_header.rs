@@ -52,7 +52,7 @@ impl WrmHeader {
     ///
     /// # Errors
     ///
-    /// Returns an error if the PlayReady object header version is unsupported.
+    /// Returns an error if the `PlayReady` object header version is unsupported.
     pub fn key_ids(&self) -> Result<Vec<String>> {
         let mut key_ids = Vec::new();
 
@@ -68,7 +68,7 @@ impl WrmHeader {
                     ..
                 }) = &self.data
                 {
-                    key_ids.push(x.value.to_owned());
+                    key_ids.push(x.value.clone());
                 }
             }
             "4.2.0.0" | "4.3.0.0" => {
@@ -77,7 +77,7 @@ impl WrmHeader {
                     ..
                 }) = &self.data
                 {
-                    key_ids.push(x.value.to_owned());
+                    key_ids.push(x.value.clone());
                 }
 
                 if let Some(Data {
@@ -86,7 +86,7 @@ impl WrmHeader {
                 }) = &self.data
                 {
                     for kid in &x.kids {
-                        key_ids.push(kid.value.to_owned());
+                        key_ids.push(kid.value.clone());
                     }
                 }
             }

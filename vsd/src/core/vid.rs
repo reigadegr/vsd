@@ -54,18 +54,17 @@ pub async fn download(
             stream.media_type.to_string().green(),
             temp_file.to_string_lossy()
         );
-        let size = fs::metadata(&temp_file).await.map(|x| x.len()).unwrap_or(0);
+        let size = fs::metadata(&temp_file).await.map_or(0, |x| x.len());
         progress.update_total(1);
         progress.update(size as usize);
         progress.finish();
         return Ok(temp_stream);
-    } else {
-        info!(
-            "Saving [{}] {}",
-            stream.media_type.to_string().green(),
-            temp_file.with_extension("").to_string_lossy()
-        );
     }
+    info!(
+        "Saving [{}] {}",
+        stream.media_type.to_string().green(),
+        temp_file.with_extension("").to_string_lossy()
+    );
 
     let base_url = stream.uri.parse::<Url>()?;
     let ext = stream.extension();
@@ -159,8 +158,7 @@ pub async fn download(
                             v.to_owned()
                         } else {
                             warn!(
-                                "No key provided for {}, checking pssh data for other mappable kids.",
-                                default_kid
+                                "No key provided for {default_kid}, checking pssh data for other mappable kids."
                             );
                             let mut found = None;
 
@@ -194,7 +192,7 @@ pub async fn download(
             }
         }
 
-        let temp_file = temp_dir.join(format!("{}.{}.part", i, ext));
+        let temp_file = temp_dir.join(format!("{i}.{ext}.part"));
         let out_file = temp_file.with_extension("");
 
         if out_file.exists() {
@@ -213,16 +211,15 @@ pub async fn download(
         set.spawn(async move {
             let range_label = range
                 .as_ref()
-                .map(|x| format!("{}-{}", x.0, x.1))
-                .unwrap_or("full-range".to_owned());
+                .map_or("full-range".to_owned(), |x| format!("{}-{}", x.0, x.1));
 
-            trace!("Fetching {} (segment@{})", url, range_label);
+            trace!("Fetching {url} (segment@{range_label})");
             let mut last_err = None;
             let mut bytes = None;
 
             for attempt in 0..=max_retries {
                 if attempt > 0 {
-                    trace!("ReFetching {} (segment@{})", url, range_label);
+                    trace!("ReFetching {url} (segment@{range_label})");
                     tokio::time::sleep(std::time::Duration::from_millis(500)).await;
                 }
 
@@ -258,8 +255,7 @@ pub async fn download(
 
             let mut bytes = bytes.ok_or_else(|| {
                 last_err.unwrap_or(Error::Other(format!(
-                    "{} download failed after max retries.",
-                    url
+                    "{url} download failed after max retries."
                 )))
             })?;
             let size = bytes.len();
@@ -312,7 +308,7 @@ pub async fn download(
         }
 
         for i in 0..segments.len() {
-            let path = temp_dir.join(format!("{}.{}", i, ext));
+            let path = temp_dir.join(format!("{i}.{ext}"));
 
             if path.exists() {
                 io::copy(&mut File::open(&path).await?, &mut output).await?;
@@ -334,7 +330,7 @@ async fn split_single_seg(
     segment: &Segment,
 ) -> Result<Vec<Segment>> {
     let url = base_url.join(&segment.uri)?;
-    debug!("Fetching {} (segment@head)", url);
+    debug!("Fetching {url} (segment@head)");
     let response = config
         .client
         .head(url.clone())

@@ -77,7 +77,7 @@ async fn main() -> Result<()> {
                     continue;
                 }
                 Err(Error::UnsupportedEncryption(e)) => {
-                    println!("Unsupported encryption {}", e);
+                    println!("Unsupported encryption {e}");
                     continue;
                 }
                 Err(Error::MissingKey(key_id)) => {

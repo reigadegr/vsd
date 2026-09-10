@@ -24,7 +24,7 @@ pub struct CencProcessor {
 }
 
 impl CencProcessor {
-    pub fn new(key: &[u8; 16], crypt_blocks: u8, skip_blocks: u8, scheme_type: u32) -> Self {
+    pub const fn new(key: &[u8; 16], crypt_blocks: u8, skip_blocks: u8, scheme_type: u32) -> Self {
         Self {
             key: *key,
             iv: [0u8; 16],
@@ -41,7 +41,7 @@ impl CencProcessor {
     }
 
     pub fn decrypt_sample_inplace(&mut self, data: &mut [u8], sample: &SencSample) {
-        if let CipherMode::None = self.mode {
+        if matches!(self.mode, CipherMode::None) {
             return;
         }
 
@@ -157,7 +157,7 @@ impl CencProcessor {
             }
 
             if enc_size > 0 {
-                if let CipherMode::Cbcs = self.mode {
+                if matches!(self.mode, CipherMode::Cbcs) {
                     self.iv = *iv;
                 }
                 let start = offset + clear_size;

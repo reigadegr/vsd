@@ -14,16 +14,18 @@ pub struct HlsAes128Decrypter {
 
 impl HlsAes128Decrypter {
     /// Creates a new `HlsAes128Decrypter` with the given key and IV.
-    pub fn new(key: &[u8; 16], iv: &[u8; 16]) -> Self {
+    #[must_use]
+    pub const fn new(key: &[u8; 16], iv: &[u8; 16]) -> Self {
         Self { key: *key, iv: *iv }
     }
 
     /// Increments the initialization vector (IV) by 1.
-    pub fn increment_iv(&mut self) {
+    pub const fn increment_iv(&mut self) {
         self.iv = (u128::from_be_bytes(self.iv) + 1).to_be_bytes();
     }
 
     /// Decrypts the given encrypted segment.
+    #[must_use]
     pub fn decrypt(&self, mut input: Vec<u8>) -> Vec<u8> {
         let slice_len = {
             let slice = Aes128Cbc::new((&self.key).into(), (&self.iv).into())
@@ -49,16 +51,18 @@ pub struct HlsSampleAesDecrypter {
 
 impl HlsSampleAesDecrypter {
     /// Creates a new `HlsSampleAesDecrypter` with the given key and IV.
-    pub fn new(key: &[u8; 16], iv: &[u8; 16]) -> Self {
+    #[must_use]
+    pub const fn new(key: &[u8; 16], iv: &[u8; 16]) -> Self {
         Self { key: *key, iv: *iv }
     }
 
     /// Increments the initialization vector (IV) by 1.
-    pub fn increment_iv(&mut self) {
+    pub const fn increment_iv(&mut self) {
         self.iv = (u128::from_be_bytes(self.iv) + 1).to_be_bytes();
     }
 
     /// Decrypts the given encrypted segment.
+    #[must_use]
     pub fn decrypt(&self, input: Vec<u8>) -> Vec<u8> {
         let mut input = std::io::Cursor::new(input);
         let mut output = Vec::new();

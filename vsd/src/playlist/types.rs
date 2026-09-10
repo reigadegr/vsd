@@ -88,7 +88,7 @@ pub struct Map {
 pub struct Range(pub u64, pub u64);
 
 /// The type of media content.
-#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Eq, Serialize)]
 pub enum MediaType {
     /// Video track stream.
     Video,
@@ -102,7 +102,7 @@ pub enum MediaType {
 }
 
 /// The streaming protocol/format type.
-#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Eq, Serialize)]
 pub enum PlaylistType {
     /// Dynamic Adaptive Streaming over HTTP (MPEG-DASH).
     Dash,
@@ -112,7 +112,7 @@ pub enum PlaylistType {
 }
 
 /// The encryption/decryption method applied to the segments.
-#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Eq, Serialize)]
 pub enum KeyMethod {
     /// Envelope AES-128 encryption.
     Aes128,

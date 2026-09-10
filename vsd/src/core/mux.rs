@@ -41,13 +41,15 @@ impl std::ops::DerefMut for Muxer {
 impl Muxer {
     /// Creates a new empty [`Muxer`].
     #[allow(clippy::new_without_default)]
-    pub fn new() -> Self {
+    #[must_use]
+    pub const fn new() -> Self {
         Self(Vec::new())
     }
 
     /// Evaluates if stream merging should proceed based on the download configurations.
     ///
     /// Muxing is skipped if decryption is disabled, merging is disabled, or multiple video streams are present.
+    #[must_use]
     pub fn should_mux(&self, config: &PlaylistDownloadConfig) -> bool {
         if !config.decrypt {
             warn!("--output is ignored when --no-decrypt is used.");

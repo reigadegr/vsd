@@ -62,16 +62,11 @@ impl SidxBox {
             bail!("SIDX box has invalid timescale.");
         }
 
-        let _earliest_presentation_time;
-        let first_offset;
-
-        if version == 0 {
-            _earliest_presentation_time = reader.read_u32()? as u64;
-            first_offset = reader.read_u32()? as u64;
+        let (_earliest_presentation_time, first_offset) = if version == 0 {
+            (u64::from(reader.read_u32()?), u64::from(reader.read_u32()?))
         } else {
-            _earliest_presentation_time = reader.read_u64()?;
-            first_offset = reader.read_u64()?;
-        }
+            (reader.read_u64()?, reader.read_u64()?)
+        };
 
         reader.skip(2)?;
 
@@ -104,12 +99,12 @@ impl SidxBox {
             // let native_end_Time = (unscaled_start_time as f64 + subsegment_duration as f64) / timescale as f64;
 
             references.push(SidxRange {
-                end: start_byte + reference_size as u64 - 1,
+                end: start_byte + u64::from(reference_size) - 1,
                 start: start_byte,
             });
 
             // unscaled_start_time += subsegment_duration as u64;
-            start_byte += reference_size as u64;
+            start_byte += u64::from(reference_size);
         }
 
         box_.parser.stop();
