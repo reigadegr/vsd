@@ -2,3 +2,23 @@
 default-members = ["vsd"]
 members = ["vsd", "vsd-mp4"]
 resolver = "2"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+nursery = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+style = { level = "warn", priority = -1 }
+complexity = { level = "warn", priority = -1 }
+perf = { level = "warn", priority = -1 }
+correctness = { level = "warn", priority = -1 }
+suspicious = { level = "warn", priority = -1 }
+unwrap_used = { level = "warn", priority = -1 }
+expect_used = { level = "warn", priority = -1 }
+similar_names = "allow"
+missing_errors_doc = "allow"
+missing_safety_doc = "allow"
+missing_panics_doc = "allow"
+cast_precision_loss = "allow"
+cast_possible_truncation = "allow"
+struct_excessive_bools = "allow"
+option_if_let_else = "allow"

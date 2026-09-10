@@ -180,7 +180,11 @@ fn write_option(buffer: &mut String, arg: &Arg) {
         help.push_str(&format!("<br>*Possible values:* `{}`", values.join("`, `")));
     }
 
-    if let Some(default) = arg.get_default_values().first().filter(|_| !arg.is_hide_default_value_set()) {
+    if let Some(default) = arg
+        .get_default_values()
+        .first()
+        .filter(|_| !arg.is_hide_default_value_set())
+    {
         help.push_str(&format!("<br>*Default:* `{}`", default.to_string_lossy()));
     }
 

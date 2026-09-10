@@ -8,7 +8,7 @@ async fn main() {
         match e {
             Error::DownloadInterrupted => {
                 warn!("{}", e);
-            },
+            }
             _ => {
                 error!("{}", e);
                 std::process::exit(1);

@@ -26,7 +26,7 @@ pub struct Muxer(Vec<Stream>);
 
 impl std::ops::Deref for Muxer {
     type Target = Vec<Stream>;
-    
+
     fn deref(&self) -> &Self::Target {
         &self.0
     }

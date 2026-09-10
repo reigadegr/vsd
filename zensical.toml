@@ -7,13 +7,13 @@ copyright = "Copyright &copy; 2026 clitic"
 repo_url = "https://github.com/clitic/vsd"
 edit_uri = "edit/main/docs/"
 nav = [
-    { "Home" = "index.md" },
-    { "Installation" = "installation.md" },
-    { "Usage" = "usage.md" },
-    { "Cli" = "cli.md" },
-    { "Android" = "android.md" },
-    { "Build" = "build.md" },
-    { "Changelog" = "CHANGELOG.md" },
+  { "Home" = "index.md" },
+  { "Installation" = "installation.md" },
+  { "Usage" = "usage.md" },
+  { "Cli" = "cli.md" },
+  { "Android" = "android.md" },
+  { "Build" = "build.md" },
+  { "Changelog" = "CHANGELOG.md" },
 ]
 
 [project.theme]
@@ -21,25 +21,25 @@ nav = [
 # favicon = "images/favicon.png"
 language = "en"
 features = [
-    "announce.dismiss",
-    "content.action.edit",
-    "content.action.view",
-    "content.code.annotate",
-    "content.code.copy",
-    "content.code.select",
-    "content.footnote.tooltips",
-    "content.tabs.link",
-    "content.tooltips",
-    "navigation.footer",
-    "navigation.indexes",
-    "navigation.instant",
-    "navigation.instant.prefetch",
-    "navigation.path",
-    "navigation.sections",
-    # "navigation.tabs",
-    "navigation.top",
-    "navigation.tracking",
-    "search.highlight",
+  "announce.dismiss",
+  "content.action.edit",
+  "content.action.view",
+  "content.code.annotate",
+  "content.code.copy",
+  "content.code.select",
+  "content.footnote.tooltips",
+  "content.tabs.link",
+  "content.tooltips",
+  "navigation.footer",
+  "navigation.indexes",
+  "navigation.instant",
+  "navigation.instant.prefetch",
+  "navigation.path",
+  "navigation.sections",
+  # "navigation.tabs",
+  "navigation.top",
+  "navigation.tracking",
+  "search.highlight",
 ]
 
 [[project.theme.palette]]

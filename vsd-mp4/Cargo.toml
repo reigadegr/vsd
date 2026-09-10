@@ -13,14 +13,14 @@ readme = "README.md"
 
 [dependencies]
 aes = { version = "0.9", optional = true }
-base64 = { version = "0.22", optional = true }
+base64 = { version = "0.23", optional = true }
 cbc = { version = "0.2", optional = true }
 cipher = { version = "0.5", optional = true }
 ctr = { version = "0.10", optional = true }
 hex = { version = "0.4", optional = true }
 iori-ssa = { version = "0.2.1", optional = true }
 prost = { version = "0.14", optional = true }
-quick-xml = { version = "0.40", features = ["serialize"], optional = true }
+quick-xml = { version = "0.42", features = ["serialize"], optional = true }
 serde = { version = "1", features = ["derive"], optional = true }
 
 [build-dependencies]
@@ -32,12 +32,12 @@ full = ["decrypt-cenc", "decrypt-hls", "pssh", "sidx", "sub-ttml", "sub-vtt"]
 decrypt-cenc = ["dep:aes", "dep:cbc", "dep:cipher", "dep:ctr", "dep:hex"]
 decrypt-hls = ["dep:aes", "dep:cbc", "dep:iori-ssa"]
 pssh = [
-    "dep:base64",
-    "dep:hex",
-    "dep:prost",
-    "dep:prost-build",
-    "dep:serde",
-    "dep:quick-xml",
+  "dep:base64",
+  "dep:hex",
+  "dep:prost",
+  "dep:prost-build",
+  "dep:serde",
+  "dep:quick-xml",
 ]
 sidx = []
 sub-ttml = ["dep:serde", "dep:quick-xml"]
@@ -47,3 +47,6 @@ sub-vtt = []
 all-features = true
 targets = ["x86_64-unknown-linux-gnu"]
 rustdoc-args = ["--cfg", "docsrs"]
+
+[lints]
+workspace = true
