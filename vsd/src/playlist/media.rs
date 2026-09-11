@@ -145,27 +145,23 @@ impl MediaPlaylist {
     }
 
     fn fmt_codecs(&self) -> String {
-        self.codecs
-            .as_ref()
-            .map_or("?".to_owned(), |c| {
-                if c.len() > 12 {
-                    format!("{}…", &c[..11])
-                } else {
-                    c.to_owned()
-                }
-            })
+        self.codecs.as_ref().map_or("?".to_owned(), |c| {
+            if c.len() > 12 {
+                format!("{}…", &c[..11])
+            } else {
+                c.to_owned()
+            }
+        })
     }
 
     fn fmt_language(&self) -> String {
-        self.language
-            .as_ref()
-            .map_or("?".to_owned(), |c| {
-                if c.len() > 10 {
-                    format!("{}…", &c[..9])
-                } else {
-                    c.to_owned()
-                }
-            })
+        self.language.as_ref().map_or("?".to_owned(), |c| {
+            if c.len() > 10 {
+                format!("{}…", &c[..9])
+            } else {
+                c.to_owned()
+            }
+        })
     }
 
     /// Returns a formatted string representation of the media playlist suitable for printing in console logs or stream listings.

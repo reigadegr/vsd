@@ -78,10 +78,7 @@ pub fn parse_as_master(base_url: &Url, mpd: &MPD) -> MasterPlaylist {
                 id: utils::gen_id(base_url.as_str(), &locator),
                 i_frame: false,
                 language: adaptation_set.lang.clone(),
-                live: mpd
-                    .mpdtype
-                    .as_ref()
-                    .is_some_and(|x| x == "dynamic"),
+                live: mpd.mpdtype.as_ref().is_some_and(|x| x == "dynamic"),
                 media_sequence: 0,
                 media_type,
                 playlist_type: PlaylistType::Dash,

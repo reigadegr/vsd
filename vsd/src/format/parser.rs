@@ -198,9 +198,9 @@ impl FormatExpr {
         let mut remaining = s;
 
         while let Some(start) = remaining.find('[') {
-            let end = remaining.find(']').ok_or_else(|| {
-                Error::FormatParse(format!("unclosed bracket in '{remaining}'"))
-            })?;
+            let end = remaining
+                .find(']')
+                .ok_or_else(|| Error::FormatParse(format!("unclosed bracket in '{remaining}'")))?;
             let inner = &remaining[start + 1..end];
             filters.push(Self::parse_one_filter(inner)?);
             remaining = &remaining[end + 1..];

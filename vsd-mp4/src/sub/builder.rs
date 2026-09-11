@@ -33,6 +33,9 @@ impl Subtitles {
         self.cues.extend(cues);
     }
 
+    // Strict equality is intended: timestamps are parsed from the same decimal
+    // source text, so a tolerance-based compare could merge distinct adjacent cues.
+    #[allow(clippy::float_cmp)]
     pub(crate) fn fix_cues(self) -> Self {
         let mut cues: Vec<Cue> = Vec::new();
 
